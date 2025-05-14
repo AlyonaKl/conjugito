@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conjugito - Spanish Verb Conjugation Trainer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Conjugito</h1>
+  <h2>Choose verb tenses to practice</h2>
+
+  <form id="form">
+    <label for="tense1">Select First Tense:</label>
+    <select id="tense1">
+      <option value="present">Present</option>
+      <option value="preterite">Preterite</option>
+      <option value="perfect">Perfect</option>
+      <option value="future">Future</option>
+      <!-- Add more tenses here -->
+    </select>
+    <br>
+    <label for="tense2">Select Second Tense:</label>
+    <select id="tense2">
+      <option value="present">Present</option>
+      <option value="preterite">Preterite</option>
+      <option value="perfect">Perfect</option>
+      <option value="future">Future</option>
+      <!-- Add more tenses here -->
+    </select>
+    <br><br>
+    <button type="submit">Start Training</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
