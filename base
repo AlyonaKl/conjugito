@@ -1,0 +1,112 @@
+// page.tsx — основной файл интерфейса тренажёра Conjugito
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { verbs } from "@/lib/verbs";
+import { conjugate } from "@/lib/conjugate";
+
+const tenses = [
+  { label: "Pretérito Indefinido", value: "indefinido" },
+  { label: "Pretérito Perfecto", value: "perfecto" },
+  { label: "Pretérito Imperfecto", value: "imperfecto" },
+  { label: "Presente", value: "presente" },
+  { label: "Futuro", value: "futuro" },
+  { label: "Condicional", value: "condicional" },
+  { label: "Subjuntivo Presente", value: "subjuntivo_presente" },
+  { label: "Subjuntivo Imperfecto", value: "subjuntivo_imperfecto" }
+];
+
+export default function ConjugitoPage() {
+  const [currentRound, setCurrentRound] = useState(0);
+  const [answers, setAnswers] = useState<string[]>(Array(10).fill(""));
+  const [tense1, setTense1] = useState("indefinido");
+  const [tense2, setTense2] = useState("perfecto");
+  const [results, setResults] = useState<(true | false | null)[]>(Array(10).fill(null));
+  const [showResults, setShowResults] = useState(false);
+
+  const currentVerbs = verbs.slice(currentRound * 10, currentRound * 10 + 10);
+
+  const checkAnswers = () => {
+    const newResults = currentVerbs.map((verb, i) => {
+      const [tense1Answer, tense2Answer] = answers[i].split(" ");
+      const correct1 = conjugate(verb.infinitive, verb.person, tense1).toLowerCase();
+      const correct2 = conjugate(verb.infinitive, verb.person, tense2).toLowerCase();
+      return (
+        tense1Answer?.toLowerCase() === correct1 &&
+        tense2Answer?.toLowerCase() === correct2
+      );
+    });
+    setResults(newResults);
+    setShowResults(true);
+  };
+
+  const nextRound = () => {
+    setAnswers(Array(10).fill(""));
+    setResults(Array(10).fill(null));
+    setShowResults(false);
+    setCurrentRound(currentRound + 1);
+  };
+
+  return (
+    <main className="max-w-3xl mx-auto p-4 space-y-4">
+      <h1 className="text-3xl font-bold text-center">Conjugito</h1>
+
+      <div className="flex gap-4 justify-center">
+        <Select value={tense1} onValueChange={setTense1}>
+          <SelectTrigger><SelectValue placeholder="Выберите первое время" /></SelectTrigger>
+          <SelectContent>
+            {tenses.map((t) => (
+              <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={tense2} onValueChange={setTense2}>
+          <SelectTrigger><SelectValue placeholder="Выберите второе время" /></SelectTrigger>
+          <SelectContent>
+            {tenses.map((t) => (
+              <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-4">
+        {currentVerbs.map((verb, i) => (
+          <Card key={i} className={results[i] === true ? "border-green-400" : results[i] === false ? "border-red-400" : ""}>
+            <CardContent className="p-4 space-y-2">
+              <div className="text-lg">
+                {conjugate(verb.infinitive, verb.person, "presente")} ({verb.infinitive})
+              </div>
+              <Input
+                placeholder={`${tense1} + ${tense2}`}
+                value={answers[i]}
+                onChange={(e) => {
+                  const newAnswers = [...answers];
+                  newAnswers[i] = e.target.value;
+                  setAnswers(newAnswers);
+                }}
+              />
+              {showResults && results[i] !== null && (
+                <div className="text-sm">
+                  {results[i] ? "✅ Правильно" : `❌ Неправильно: ${conjugate(verb.infinitive, verb.person, tense1)}, ${conjugate(verb.infinitive, verb.person, tense2)}`}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="flex justify-center gap-4">
+        {!showResults ? (
+          <Button onClick={checkAnswers}>Проверить</Button>
+        ) : (
+          <Button onClick={nextRound}>Следующий раунд</Button>
+        )}
+      </div>
+    </main>
+  );
+}
